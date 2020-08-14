@@ -15,9 +15,9 @@ extension MonkeyKing {
         }
 
         switch weChatAccount {
-        case .weChat(_, _, _, let wxUL):
+        case .weChat(let appID, _, _, let wxUL):
             if let wxUL = wxUL, url.absoluteString.hasPrefix(wxUL) {
-                return handleWechatUniversalLink(url)
+                return handleWechatUniversalLink(appID, url)
             }
 
         // TODO: handle universal link of qq
@@ -33,9 +33,14 @@ extension MonkeyKing {
 
     // MARK: - Wechat Universal Links
 
-    private class func handleWechatUniversalLink(_ url: URL) -> Bool {
+    private class func handleWechatUniversalLink(_ appID: String, _ url: URL) -> Bool {
         guard let comps = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
             return false
+        }
+        
+        // MARK: - share callback with nothing
+        if comps.path == "/\(appID)/", comps.queryItems == nil {
+            return true
         }
 
         // MARK: - update token
